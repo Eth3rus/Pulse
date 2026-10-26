@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pulse</title>
+<script>document.documentElement.dataset.theme=localStorage.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light')</script>
+<style>
+:root{--bg:#fff;--fg:#0f1419;--mu:#667280;--bd:#e4e9ed;--ac:#4057f5;--hv:#0f14190d;--sf:#f5f7f9;color-scheme:light}
+:root[data-theme=dark]{--bg:#000;--fg:#eff3f4;--mu:#71767b;--bd:#2f3336;--hv:#ffffff12;--sf:#16181c;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;transition:background .25s,color .25s}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+[data-a]{cursor:pointer}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+#app{max-width:620px;margin:0 auto;min-height:100vh;border:solid var(--bd);border-width:0 1px;padding-bottom:96px}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:8px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd)}
+.logo{font-weight:800;font-size:22px;letter-spacing:-.03em;color:var(--fg);text-decoration:none}
+.sp{flex:1}.mu{color:var(--mu)}
+.ic{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;transition:.2s}.ic:hover{background:var(--hv)}
+.btn{background:var(--fg);color:var(--bg);padding:8px 18px;border-radius:99px;font-weight:700;transition:.2s}
+.btn:hover{opacity:.85;transform:translateY(-1px)}.btn:disabled{opacity:.4}
+.btn.o{background:none;color:var(--fg);border:1px solid var(--bd)}.btn.o:hover{background:var(--hv)}
+.btn.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.btn.full{width:100%;padding:12px;margin-top:8px}
+.tabs{display:flex;border-bottom:1px solid var(--bd)}
+.tabs button{flex:1;padding:14px;color:var(--mu);font-weight:600;position:relative;transition:.2s}
+.tabs button:hover{background:var(--hv)}.tabs .on{color:var(--fg)}
+.tabs button::after{content:"";position:absolute;left:30%;right:30%;bottom:0;height:3px;border-radius:3px;background:var(--ac);transform:scaleX(0);transition:transform .25s}
+.tabs .on::after{transform:scaleX(1)}
+.chips{display:flex;gap:8px;padding:10px 16px;overflow-x:auto;border-bottom:1px solid var(--bd)}
+.chip{white-space:nowrap;padding:6px 14px;border-radius:99px;border:1px solid var(--bd);transition:.2s}
+.chip:hover{background:var(--hv)}.chip.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.comp{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--bd)}
+input,textarea{width:100%;background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;margin:6px 0;outline:0;transition:border .2s;resize:vertical}
+input:focus,textarea:focus{border-color:var(--ac)}
+.comp textarea{background:none;border:0;padding:8px 0;resize:none}
+#feed{animation:fd .25s}@keyframes fd{from{opacity:0}}
+.post{padding:12px 16px;border-bottom:1px solid var(--bd);transition:background .15s}.post:hover{background:var(--hv)}
+.rt{font-size:13px;margin:0 0 4px 54px}
+.row{display:flex;gap:12px}.main{flex:1;min-width:0}
+.hd{display:flex;gap:6px;align-items:center}.hd b{cursor:pointer}.hd b:hover{text-decoration:underline}
+.hd .more{margin-left:auto}.more{position:relative}
+.body{white-space:pre-wrap;word-break:break-word;margin:2px 0 8px}
+.media{display:block;width:100%;max-height:480px;border-radius:14px;border:1px solid var(--bd);object-fit:cover;margin-bottom:8px;background:var(--sf)}
+.q{border:1px solid var(--bd);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.acts{display:flex;justify-content:space-between;max-width:400px;color:var(--mu)}
+.acts>*,.acts .more>button{display:flex;gap:6px;align-items:center;padding:4px 8px;border-radius:99px;transition:.2s}
+.acts button:hover{background:var(--hv);color:var(--ac)}
+.acts .l.on{color:#f91880}.acts .r.on{color:#00ba7c}.acts .b.on{color:var(--ac)}
+.acts i{font-style:normal;display:inline-block}.acts .on i{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.5)}}
+.av{width:42px;height:42px;border-radius:50%;object-fit:cover;background:var(--ac);color:#fff;display:grid;place-items:center;font-weight:700;flex:none}
+.av.xl{width:84px;height:84px;font-size:30px;border:4px solid var(--bg);margin-top:-42px}
+.menu{position:absolute;right:0;top:100%;min-width:180px;background:var(--bg);border:1px solid var(--bd);border-radius:12px;box-shadow:0 8px 28px #00000040;padding:6px;opacity:0;visibility:hidden;transform:translateY(-6px);transition:.18s;z-index:30}
+.menu.open{opacity:1;visibility:visible;transform:none}
+.menu a,.menu button{display:block;width:100%;text-align:left;padding:9px 12px;border-radius:8px;color:var(--fg);text-decoration:none;cursor:pointer}
+.menu a:hover,.menu button:hover{background:var(--hv)}
+.ph .bn{height:150px;background:var(--sf) center/cover}.pi{display:flex;align-items:flex-end;padding:0 16px}
+.ph h2,.ph .mu,.ph p{padding:0 16px}.ph h2{margin-top:8px}.ph p{margin:6px 0 14px}
+.pt{padding:14px 16px;border-bottom:1px solid var(--bd)}
+.empty{padding:40px 24px;text-align:center;color:var(--mu)}
+.fade{-webkit-mask-image:linear-gradient(#000 45%,transparent);mask-image:linear-gradient(#000 45%,transparent)}
+.gate{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ac);color:#fff;padding:14px 16px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap}
+.gate .btn{background:#fff;color:var(--ac)}.gate .btn.o{background:none;color:#fff;border-color:#fff8}
+.ov{position:fixed;inset:0;background:#0008;display:grid;place-items:center;opacity:0;visibility:hidden;transition:.2s;z-index:50;padding:16px}
+.ov.open{opacity:1;visibility:visible}.ov.full{background:var(--bg)}
+.mc{position:relative;background:var(--bg);border:1px solid var(--bd);border-radius:18px;padding:24px;width:100%;max-width:440px;max-height:90vh;overflow:auto;transform:scale(.95);transition:.2s}
+.ov.open .mc{transform:none}.ov.full .mc{border:0}
+.mc h2{font-size:28px;letter-spacing:-.03em}.mc h3{margin:6px 0 10px;font-size:18px}
+.mc .x{position:absolute;top:10px;right:10px}.mc label{display:block;margin:8px 0}
+.lk{color:var(--ac);font-weight:600}.err{color:#f4212e;min-height:20px}
+.ur{display:flex;gap:10px;align-items:center;padding:8px 0}
+#t{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:var(--fg);color:var(--bg);padding:10px 18px;border-radius:99px;opacity:0;transition:.25s;z-index:60;pointer-events:none}
+#t.open{opacity:1;transform:translate(-50%,0)}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div><div id="m" class="ov"></div><div id="t"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+// ---- CONFIG: Supabase dashboard > Project Settings > API ----
+const CFG={url:'https://idovrgvgxclyhzakrpla.supabase.co',key:'sb_publishable__TzpnGEHcIZUaPOhnufPEQ_d7IyGTS6'};
+const sb=supabase.createClient(CFG.url,CFG.key);
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+const A='author:profiles!author_id(id,handle,name,avatar_url)';
+const SEL=`*,${A},quoted:posts!quote_of(*,${A}),orig:posts!repost_of(*,${A},quoted:posts!quote_of(*,${A}))`;
+const E=()=>({follow:new Set(),mute:new Set(),block:new Set()}),M=()=>({l:new Set(),b:new Set(),r:new Set()});
+const NIL='00000000-0000-0000-0000-000000000000',g=x=>x.data||[];
+let me=null,seq=0,tm,seen=new Set(),S={tab:'foryou',view:'feed',rels:E(),lists:[],list:null,profile:null,posts:[],stats:{},mine:M(),mode:'login',dirty:0};
+
+const n=x=>x>=1e3?(x/1e3).toFixed(1).replace('.0','')+'K':x||0;
+const ago=t=>{const s=(Date.now()-new Date(t))/1e3;return s<60?'now':s<3600?(s/60|0)+'m':s<86400?(s/3600|0)+'h':new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric'})};
+const av=(u,c='',l=1)=>{const d=l?` data-a="go" data-h="${u.handle}"`:'';return u.avatar_url?`<img class="av ${c}"${d} src="${esc(u.avatar_url)}" alt="">`:`<div class="av ${c}"${d}>${esc((u.name||'?')[0]).toUpperCase()}</div>`};
+const toast=m=>{const t=$('#t');t.textContent=m;t.classList.add('open');setTimeout(()=>t.classList.remove('open'),3000)};
+const modal=(h,full)=>{const m=$('#m');m.className='ov'+(full?' full':'');m.innerHTML=`<div class="mc">${h}</div>`;requestAnimationFrame(()=>m.classList.add('open'))};
+const closeM=()=>{$('#m').classList.remove('open');if(S.dirty){S.dirty=0;load()}};
+const find=id=>S.posts.map(p=>p.orig||p).find(p=>p.id===id);
+const up=async f=>{const p=`${me.id}/${Date.now()}-${f.name.replace(/[^\w.]/g,'_')}`;const {error}=await sb.storage.from('media').upload(p,f);if(error)throw error;return sb.storage.from('media').getPublicUrl(p).data.publicUrl};
+
+// ---- session & routing ----
+async function setUser(u){
+ me=null;S.rels=E();S.lists=[];S.mine=M();
+ if(u){const [p,r,l]=await Promise.all([sb.from('profiles').select('*').eq('id',u.id).single(),sb.from('rels').select('*'),sb.from('lists').select('*,list_members(user_id)').order('id')]);
+  me=p.data;g(r).forEach(x=>S.rels[x.kind].add(x.target));S.lists=g(l)}
+ closeM();route();
+}
+async function route(){
+ const [p,h]=location.hash.slice(2).split('/');
+ S.view=p==='bookmarks'?'bm':'feed';
+ if(p==='u'){const {data}=await sb.from('profiles').select('*').eq('handle',(h||'').toLowerCase()).maybeSingle();if(data){S.profile=data;S.view='profile'}}
+ scrollTo(0,0);render();load();
+}
+addEventListener('hashchange',route);
+
+// ---- data ----
+async function load(){
+ const my=++seq,v=S.view;
+ let q=sb.from('posts').select(SEL).order('created_at',{ascending:false}).limit(me?60:3);
+ if(v==='profile')q=q.eq('author_id',S.profile.id);
+ else if(v==='bm'){if(!me){S.posts=[];return renderFeed()}q=q.in('id',g(await sb.from('bookmarks').select('post_id')).map(x=>x.post_id).concat(0))}
+ else if(S.tab!=='foryou'){
+  const L=S.lists.find(l=>l.id===S.list);
+  if(!me||(S.tab==='lists'&&!L)){S.posts=[];return renderFeed()}
+  q=q.in('author_id',S.tab==='following'?[me.id,...S.rels.follow]:L.list_members.map(m=>m.user_id).concat(NIL));
+ }
+ const {data,error}=await q;if(my!==seq)return;if(error)return toast(error.message);
+ const X=S.rels,ok=p=>{const a=(p.orig||p).author_id;return v==='profile'||!(X.block.has(a)||X.mute.has(a)||X.block.has(p.author_id))};
+ S.posts=data.filter(ok);
+ const ids=[...new Set(S.posts.map(p=>p.repost_of||p.id))],none={data:[]};
+ const [st,l,b,r]=await Promise.all([sb.from('post_stats').select('*').in('id',ids),
+  me?sb.from('likes').select('post_id').eq('user_id',me.id).in('post_id',ids):none,
+  me?sb.from('bookmarks').select('post_id').in('post_id',ids):none,
+  me?sb.from('posts').select('repost_of').eq('author_id',me.id).in('repost_of',ids):none]);
+ if(my!==seq)return;
+ S.stats={};g(st).forEach(x=>S.stats[x.id]=x);
+ S.mine={l:new Set(g(l).map(x=>x.post_id)),b:new Set(g(b).map(x=>x.post_id)),r:new Set(g(r).map(x=>x.repost_of))};
+ renderFeed();
+ const fresh=ids.filter(i=>!seen.has(i));fresh.forEach(i=>seen.add(i));if(fresh.length)sb.rpc('inc_views',{ids:fresh});
+}
+const live=()=>{clearTimeout(tm);tm=setTimeout(()=>{if(!document.querySelector('.menu.open')&&![...document.querySelectorAll('video')].some(v=>!v.paused))load()},500)};
+
+// ---- views ----
+const med=u=>u.media_url?(u.media_type==='video'?`<video class="media" src="${esc(u.media_url)}" controls preload="metadata"></video>`:`<img class="media" src="${esc(u.media_url)}" loading="lazy" alt="">`):'';
+function card(p){
+ const r=p.repost_of?p:null,o=r?r.orig:p;if(!o)return '';
+ const id=o.id,st=S.stats[id]||{},a=o.author,K=x=>S.rels[x].has(a.id),mn=S.mine;
+ const menu=me&&o.author_id===me.id?`<button data-a="del" data-id="${id}">Delete post</button>`:['follow','mute','block'].map(x=>`<button data-a="rel" data-k="${x}" data-id="${a.id}">${K(x)?'Un'+x:x[0].toUpperCase()+x.slice(1)} @${a.handle}</button>`).join('');
+ const qt=o.quoted?`<div class="q"><b>${esc(o.quoted.author.name)}</b> <span class="mu">@${o.quoted.author.handle}</span><div class="body">${esc(o.quoted.body)}</div>${med(o.quoted)}</div>`:'';
+ const on=s=>mn[s].has(id)?' on':'';
+ return `<article class="post">${r?`<div class="rt mu">↻ ${me&&r.author_id===me.id?'You':esc(r.author.name)} reposted</div>`:''}<div class="row">${av(a)}<div class="main"><div class="hd"><b data-a="go" data-h="${a.handle}">${esc(a.name)}</b><span class="mu">@${a.handle} · ${ago(o.created_at)}</span><div class="more"><button class="ic" data-a="menu" aria-label="More">⋯</button><div class="menu">${menu}</div></div></div><div class="body">${esc(o.body)}</div>${med(o)}${qt}
+<div class="acts"><span class="mu" title="Views"><i>👁</i>${n(o.views)}</span><div class="more"><button class="r${on('r')}" data-a="menu"><i>↻</i>${n(st.reposts)}</button><div class="menu"><button data-a="rp" data-id="${id}">${mn.r.has(id)?'Undo repost':'Repost'}</button><button data-a="quote" data-id="${id}">Quote repost</button></div></div><button class="l${on('l')}" data-a="like" data-id="${id}"><i>${mn.l.has(id)?'♥':'♡'}</i>${n(st.likes)}</button><button class="b${on('b')}" data-a="bm" data-id="${id}"><i>${mn.b.has(id)?'★':'☆'}</i>${n(st.bookmarks)}</button></div></div></div></article>`;
+}
+function renderFeed(){
+ const f=$('#feed');if(!f)return;let h;
+ if(!me&&S.view==='feed'&&S.tab!=='foryou')h=`<p class="empty">Log in to see your ${S.tab==='lists'?'lists':'Following feed'}.</p>`;
+ else if(S.view==='feed'&&S.tab==='lists'&&!S.list)h='<p class="empty">Create a list, then add people to see a custom feed.</p>';
+ else{h=S.posts.map(card).join('')||'<p class="empty">No posts yet.</p>';if(!me)h=`<div class="fade">${h}</div>`}
+ f.innerHTML=h;
+}
+const relBtns=u=>['follow','mute','block'].map(k=>`<button class="btn o${S.rels[k].has(u.id)?' on':''}" data-a="rel" data-k="${k}" data-id="${u.id}" style="margin-left:6px">${S.rels[k].has(u.id)?(k==='follow'?'Following':k==='mute'?'Muted':'Blocked'):k[0].toUpperCase()+k.slice(1)}</button>`).join('');
+function render(){
+ const v=S.view,u=S.profile,T=(t,l)=>`<button class="${S.tab===t?'on':''}" data-a="tab" data-t="${t}">${l}</button>`;
+ const head=v==='profile'?`<div class="ph"><div class="bn" style="background-image:url('${esc(u.banner_url||'')}')"></div><div class="pi">${av(u,'xl',0)}<div class="sp"></div>${me&&me.id===u.id?'<button class="btn o" data-a="edit">Edit profile</button>':relBtns(u)}</div><h2>${esc(u.name)}</h2><div class="mu">@${u.handle}</div><p>${esc(u.bio)}</p></div>`
+ :v==='bm'?'<h2 class="pt">Bookmarks</h2>'
+ :`<nav class="tabs">${T('foryou','For you')}${T('following','Following')}${T('lists','Lists')}</nav>${S.tab==='lists'&&me?`<div class="chips">${S.lists.map(l=>`<button class="chip${l.id===S.list?' on':''}" data-a="pick" data-id="${l.id}">${esc(l.name)}</button>`).join('')}<button class="chip" data-a="newlist">+ New list</button>${S.list?'<button class="chip" data-a="manage">Manage members</button>':''}</div>`:''}${me?`<form class="comp" data-f="post">${av(me,'',0)}<div class="main"><textarea name="body" rows="2" placeholder="What's happening?" maxlength="500"></textarea><div class="hd"><label class="ic" title="Add photo or video">🖼<input type="file" name="file" accept="image/*,video/*" hidden></label><span class="mu" id="fn"></span><div class="sp"></div><button class="btn">Post</button></div></div></form>`:''}`;
+ $('#app').innerHTML=`<header><a class="logo" href="#/">Pulse</a><div class="sp"></div><button class="ic" data-a="theme" aria-label="Toggle theme">◐</button>${me?`<div class="more"><button data-a="menu" aria-label="Account">${av(me,'',0)}</button><div class="menu"><a data-a="go" data-h="${me.handle}">Profile</a><a href="#/bookmarks">Bookmarks</a><button data-a="logout">Log out</button></div></div>`:'<button class="btn" data-a="auth" data-m="login">Log in</button>'}</header>${head}<div id="feed"></div>${me?'':'<div class="gate"><b>Join the conversation</b><span>Sign up or log in to see more posts.</span><button class="btn" data-a="auth" data-m="signup">Sign up</button><button class="btn o" data-a="auth" data-m="login">Log in</button></div>'}`;
+ renderFeed();
+}
+function authUI(){
+ const s=S.mode==='signup';
+ modal(`<button class="ic x" data-a="close" aria-label="Close">✕</button><h2>Pulse</h2><h3>${s?'Create your account':'Welcome back'}</h3><form data-f="auth">${s?'<input name="name" placeholder="Display name" required maxlength="40"><input name="handle" placeholder="Handle (letters, numbers, _)" required pattern="[A-Za-z0-9_]{3,20}">':''}<input name="email" type="email" placeholder="Email" required><input name="password" type="password" placeholder="Password (6+ characters)" required minlength="6"><p class="err" id="err"></p><button class="btn full">${s?'Sign up':'Log in'}</button></form><p class="mu" style="margin-top:14px">${s?'Already have an account?':'New here?'} <button class="lk" data-a="auth" data-m="${s?'login':'signup'}">${s?'Log in':'Sign up'}</button></p>`,1);
+}
+const rows=(us,ids)=>us.map(u=>`<div class="ur">${av(u,'',0)}<div><b>${esc(u.name)}</b><div class="mu">@${u.handle}</div></div><div class="sp"></div><button class="btn o" data-a="lmem" data-id="${u.id}">${ids.includes(u.id)?'Remove':'Add'}</button></div>`).join('');
+async function lm(){const L=S.lists.find(l=>l.id===S.list),ids=L.list_members.map(m=>m.user_id);const d=ids.length?g(await sb.from('profiles').select('id,handle,name,avatar_url').in('id',ids)):[];if($('#um'))$('#um').innerHTML=rows(d,ids)||'<p class="mu">No members yet.</p>'}
+async function usearch(){
+ const i=$('#us');if(!i)return;const t=i.value.trim().replace(/[,()%*]/g,'');if(!t)return $('#ur').innerHTML='';
+ const L=S.lists.find(l=>l.id===S.list),d=g(await sb.from('profiles').select('id,handle,name,avatar_url').or(`handle.ilike.%${t}%,name.ilike.%${t}%`).limit(6));
+ if($('#ur'))$('#ur').innerHTML=rows(d,L.list_members.map(m=>m.user_id));
+}
+
+// ---- actions ----
+const PUB=['theme','auth','go','tab','close','pick'];
+document.addEventListener('click',async e=>{
+ const t=e.target.closest('[data-a]');
+ if(e.target.id==='m'&&!$('#m').classList.contains('full'))closeM();
+ const was=t?.dataset.a==='menu'&&t.nextElementSibling.classList.contains('open');
+ document.querySelectorAll('.menu.open').forEach(m=>m.classList.remove('open'));
+ if(!t)return;const {a,id,k,h}=t.dataset,pid=+id;
+ if(a==='menu'){if(!was)t.nextElementSibling.classList.add('open');return}
+ if(!me&&!PUB.includes(a)){S.mode='login';return authUI()}
+ switch(a){
+ case 'theme':{const d=document.documentElement;d.dataset.theme=d.dataset.theme==='dark'?'light':'dark';localStorage.theme=d.dataset.theme;break}
+ case 'auth':S.mode=t.dataset.m;authUI();break;
+ case 'close':closeM();break;
+ case 'go':location.hash='#/u/'+h;break;
+ case 'logout':await sb.auth.signOut();break;
+ case 'tab':S.tab=t.dataset.t;if(S.tab==='lists')S.list=S.list||S.lists[0]?.id||null;render();load();break;
+ case 'pick':S.list=pid;render();load();break;
+ case 'like':case 'bm':{
+  const L=a==='like',set=S.mine[L?'l':'b'],f=L?'likes':'bookmarks',on=set.has(pid),st=S.stats[pid]||(S.stats[pid]={});
+  on?set.delete(pid):set.add(pid);st[f]=Math.max(0,(st[f]||0)+(on?-1:1));renderFeed();
+  const T=sb.from(f),{error}=await(on?T.delete().match({user_id:me.id,post_id:pid}):T.insert({post_id:pid}));
+  if(error){toast(error.message);load()}break}
+ case 'rp':{const {error}=await(S.mine.r.has(pid)?sb.from('posts').delete().match({author_id:me.id,repost_of:pid}):sb.from('posts').insert({repost_of:pid}));if(error)toast(error.message);load();break}
+ case 'quote':{const o=find(pid);modal(`<h3>Quote repost</h3><form data-f="quote"><input type="hidden" name="id" value="${pid}"><textarea name="body" rows="3" placeholder="Add a comment" required maxlength="500"></textarea><div class="q"><b>${esc(o.author.name)}</b> <span class="mu">@${o.author.handle}</span><div class="body">${esc(o.body)}</div></div><button class="btn full">Post</button></form>`);break}
+ case 'del':await sb.from('posts').delete().eq('id',pid);load();break;
+ case 'rel':{const s=S.rels[k];if(s.has(id)){s.delete(id);await sb.from('rels').delete().match({user_id:me.id,target:id,kind:k})}else{s.add(id);await sb.from('rels').insert({target:id,kind:k})}if(S.view==='profile')render();load();break}
+ case 'newlist':modal('<h3>New list</h3><form data-f="list"><input name="name" placeholder="List name" required maxlength="40"><button class="btn full">Create list</button></form>');break;
+ case 'manage':modal(`<h3>${esc(S.lists.find(l=>l.id===S.list).name)}</h3><input id="us" placeholder="Search people to add" autocomplete="off"><div id="ur"></div><h3>Members</h3><div id="um"></div><button class="btn o full" data-a="dellist">Delete list</button>`);lm();break;
+ case 'lmem':{const L=S.lists.find(l=>l.id===S.list),has=L.list_members.some(m=>m.user_id===id);
+  const {error}=await(has?sb.from('list_members').delete().match({list_id:L.id,user_id:id}):sb.from('list_members').insert({list_id:L.id,user_id:id}));
+  if(error)return toast(error.message);
+  L.list_members=has?L.list_members.filter(m=>m.user_id!==id):[...L.list_members,{user_id:id}];S.dirty=1;lm();usearch();break}
+ case 'dellist':await sb.from('lists').delete().eq('id',S.list);S.lists=S.lists.filter(l=>l.id!==S.list);S.list=S.lists[0]?.id||null;S.dirty=0;closeM();render();load();break;
+ case 'edit':modal(`<h3>Edit profile</h3><form data-f="edit"><input name="name" value="${esc(me.name)}" required maxlength="40"><textarea name="bio" rows="3" maxlength="160" placeholder="Bio">${esc(me.bio)}</textarea><label class="mu">Profile picture<input type="file" name="avatar" accept="image/*"></label><label class="mu">Header banner<input type="file" name="banner" accept="image/*"></label><button class="btn full">Save changes</button></form>`);break;
+ }
+});
+document.addEventListener('input',e=>{if(e.target.id==='us'){clearTimeout(S.st);S.st=setTimeout(usearch,250)}});
+document.addEventListener('change',e=>{if(e.target.name==='file')$('#fn').textContent=e.target.files[0]?.name||''});
+
+const F={
+ async auth(f){
+  const d=Object.fromEntries(new FormData(f)),s=S.mode==='signup',er=$('#err');
+  const {data,error}=s?await sb.auth.signUp({email:d.email,password:d.password,options:{data:{handle:d.handle.toLowerCase(),name:d.name}}}):await sb.auth.signInWithPassword({email:d.email,password:d.password});
+  if(error)er.textContent=/database/i.test(error.message)?'That handle is already taken.':error.message;
+  else if(!data.session)er.textContent='Check your email to confirm your account, then log in.';
+ },
+ async post(f){
+  const d=new FormData(f),file=d.get('file'),body=d.get('body').trim(),b=f.querySelector('.btn');
+  if(!body&&!file.size)return;b.disabled=true;
+  try{const row={body};if(file.size){row.media_url=await up(file);row.media_type=file.type.startsWith('video')?'video':'image'}
+   const {error}=await sb.from('posts').insert(row);if(error)throw error;f.reset();$('#fn').textContent='';load()}catch(x){toast(x.message)}
+  b.disabled=false;
+ },
+ async quote(f){const d=new FormData(f),{error}=await sb.from('posts').insert({body:d.get('body'),quote_of:+d.get('id')});error?toast(error.message):(closeM(),load())},
+ async list(f){
+  const {data,error}=await sb.from('lists').insert({name:new FormData(f).get('name')}).select('*,list_members(user_id)').single();
+  if(error)return toast(error.message);S.lists.push(data);S.list=data.id;S.tab='lists';closeM();render();load();
+ },
+ async edit(f){
+  const d=new FormData(f),u={name:d.get('name'),bio:d.get('bio')};
+  try{for(const [k,c] of [['avatar','avatar_url'],['banner','banner_url']]){const x=d.get(k);if(x.size)u[c]=await up(x)}
+   const {data,error}=await sb.from('profiles').update(u).eq('id',me.id).select().single();if(error)throw error;
+   me=data;S.profile=data;closeM();render();load()}catch(x){toast(x.message)}
+ }
+};
+document.addEventListener('submit',e=>{e.preventDefault();F[e.target.dataset.f]?.(e.target)});
+
+// ---- boot ----
+(async()=>{
+ const {data:{session}}=await sb.auth.getSession();await setUser(session?.user);
+ sb.auth.onAuthStateChange((_e,s)=>{if((s?.user?.id||null)!==(me?.id||null))setTimeout(()=>setUser(s?.user),0)});
+ sb.channel('live').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},live).on('postgres_changes',{event:'DELETE',schema:'public',table:'posts'},live).on('postgres_changes',{event:'*',schema:'public',table:'likes'},live).subscribe();
+ setInterval(()=>{if(!document.hidden)live()},20000); // refreshes counts that Realtime can't broadcast (private bookmarks, views)
+})();
+</script>
+</body>
+</html>
